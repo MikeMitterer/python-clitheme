@@ -3,7 +3,8 @@
 [← README](../README.de.md)
 
 Diese Seite beschreibt die Arbeit **an** CLITheme: Einrichten aus dem
-Checkout, Tests, Übersetzungen und Aufbau.
+Checkout, Tests, Übersetzungen, Aufbau und Release. Alle Befehle zeigt
+`make help`, die Reihenfolge für den ersten Start `make hints`.
 
 ## Übersicht
 
@@ -12,27 +13,32 @@ Checkout, Tests, Übersetzungen und Aufbau.
 - [Tests](#tests)
 - [Übersetzungen](#übersetzungen)
 - [Aufbau](#aufbau)
-- [Version](#version)
+- [Version und Release](#version-und-release)
 
 ## Voraussetzungen
 
-Python 3.11 oder neuer; entwickelt wird mit der neuesten stabilen Version.
-Einzige Laufzeitabhängigkeit ist rich.
+Python 3.11 oder neuer; `make setup` nimmt `python3.14`, ein anderer
+Interpreter geht mit `PYTHON_BOOTSTRAP=…`. Einzige Laufzeitabhängigkeit ist
+rich.
+
+Die Prüfungen brauchen ProjectTools (`docs-check`, `repo-status`,
+`changelog`), Releases zusätzlich BashLib, beide über pipx. Die verlangten
+Release-Tags stehen in `.dev-tools.conf.sh`; `make hints` nennt die
+Installationsbefehle, `make info` die gefundenen Versionen.
 
 [↑ Übersicht](#übersicht)
 
 ## Einrichten
 
-Die Entwicklungsumgebung ist eine `.venv` im Checkout. Das Paket kommt
-editierbar hinein, zusammen mit den Werkzeugen für Tests, Lint und Kataloge
-(Extra `dev` in `pyproject.toml`):
-
 ```bash
-python3 -m venv .venv
-.venv/bin/pip install -e '.[dev]'
+make setup
 ```
 
-Danach steht `.venv/bin/cli-theme` bereit. Die eigenen Theme-Dateien unter
+`setup` legt die `.venv` an, installiert das Paket editierbar samt den
+Werkzeugen für Tests, Lint und Kataloge (Extra `dev` in `pyproject.toml`) und
+aktiviert den pre-commit-Hook unter `.githooks/`, der vor jedem Commit die
+Doku prüft. Ein zweiter Aufruf ist schnell; neu installiert wird nur, wenn
+`pyproject.toml` sich geändert hat. Danach steht `.venv/bin/cli-theme` bereit. Die eigenen Theme-Dateien unter
 `~/.config/cli-theme/` bleiben dabei unberührt.
 
 [↑ Übersicht](#übersicht)
@@ -40,10 +46,13 @@ Danach steht `.venv/bin/cli-theme` bereit. Die eigenen Theme-Dateien unter
 ## Tests
 
 ```bash
-.venv/bin/pytest
-.venv/bin/ruff check src tests
-.venv/bin/ruff format --check src tests
+make check
 ```
+
+`check` ist der volle Prüflauf: Ruff (Lint und Format), Shellcheck, die
+Doku-Prüfung und alle Tests. `make test ARGS="-k name"` lässt nur passende
+Tests laufen, `make format` formatiert den Python-Code. Ohne `make setup`
+brechen die Prüfungen mit einem Hinweis darauf ab.
 
 Die Tests rufen den installierten Befehl `cli-theme` auf, auch in einem
 Pseudo-Terminal für die farbige Ausgabe, und arbeiten mit echten Dateien in
@@ -62,7 +71,7 @@ daneben wird mitcommittet und kommt ins Paket.
 Nach einer Änderung an Texten oder an der `.po`-Datei neu kompilieren:
 
 ```bash
-.venv/bin/pybabel compile -D cli_theme -d src/cli_theme/locales -l de
+make catalog
 ```
 
 Ein Test prüft, dass jeder markierte Text übersetzt und nicht unscharf ist
@@ -86,9 +95,19 @@ sich nur in den Farben und der Titelzeile; ein Test hält das fest. Eine
 
 [↑ Übersicht](#übersicht)
 
-## Version
+## Version und Release
 
 Die Version steht nur in `pyproject.toml`; `cli-theme --version` liest sie
-aus den Paketdaten.
+aus den Paketdaten, `make version` zeigt sie zusammen mit dem letzten Tag.
+
+Ein Release erhöht die Version, committet, setzt den Tag
+`v<version>+YYMMDD.HHMM.hash`, pusht und schreibt danach `CHANGELOG.md`:
+
+```bash
+make tag-patch MSG="Kurze Beschreibung des Releases"
+```
+
+`tag-minor` und `tag-major` erhöhen die jeweilige Stelle. `make changelog`
+zeigt vorher eine Vorschau.
 
 [↑ Übersicht](#übersicht)
