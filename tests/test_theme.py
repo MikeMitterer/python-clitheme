@@ -72,8 +72,14 @@ def test_invalid_entries_name_file_and_line(line):
     number = len(text.splitlines())
     with pytest.raises(ThemeError) as caught:
         parse_theme(text, SOURCE)
-    assert caught.value.code == "theme_invalid"
-    assert str(caught.value) == f"{SOURCE}:{number}: invalid theme entry {line!r}"
+    error = caught.value
+    assert error.code == "theme_invalid"
+    assert error.params == {"source": SOURCE, "line": number, "entry": repr(line)}
+    # Der übersetzte Text hängt von der Sprache des Prozesses ab; geprüft wird die Basissprache.
+    assert error.message.format(**error.params) == (
+        f"{SOURCE}:{number}: invalid theme entry {line!r}"
+    )
+    assert f"{SOURCE}:{number}" in str(error) and repr(line) in str(error)
 
 
 def test_valid_color_forms():
