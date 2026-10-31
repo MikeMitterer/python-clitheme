@@ -1,0 +1,44 @@
+# Sicherheitsprofil
+
+Was in diesem Projekt schutzwürdig ist und welche Grundsatzentscheidungen
+gelten. Ein Konzeptticket, das den Aufbau der App berührt, prüft und ergänzt
+es. Bei jedem Code-Ticket prüfen Implementer und Reviewer den Diff dagegen
+(Guard `security`, Bericht ist Pflicht).
+Leere Abschnitte heißen „noch nicht entschieden“; „keine“ ist eine Entscheidung.
+
+## Sensible Daten
+
+Keine. Die Theme-Dateien enthalten nur Farbangaben und Abstände.
+
+## Speicherorte
+
+CLITheme liest und schreibt nur unter
+`${XDG_CONFIG_HOME:-~/.config}/cli-theme/`. Ein relativer `XDG_CONFIG_HOME`
+gilt nicht. Der Ordner `cli-theme` und die Theme-Dateien dürfen keine Links
+sein: Lesen öffnet mit `O_NOFOLLOW`, Anlegen setzt eine fertige Hilfsdatei
+per `os.link` ein und ersetzt nie eine vorhandene Datei oder einen Link.
+Vorhandene Dateien des Nutzers werden nie überschrieben.
+
+## Geheimnisse
+
+Keine.
+
+## Anmeldung
+
+Keine; CLITheme ist eine lokale Bibliothek mit Befehl, ohne Benutzer oder
+Sitzungen.
+
+## Zugriffe von außen
+
+Eingaben sind die Umgebungsvariablen `CLI_THEME` und `XDG_CONFIG_HOME` und
+der Inhalt der Theme-Datei. `CLI_THEME` darf nur Buchstaben, Ziffern, `-` und
+`_` enthalten und kann so keinen Pfad bilden. Jede Zeile der Theme-Datei wird
+gegen das Format geprüft; Unbekanntes ist ein Fehler. Kein Netzzugriff.
+
+Bash und Make binden die Theme-Datei mit `source` bzw. `include` ein und
+führen damit ihren Inhalt aus. Sie liegt im Konfigurationsordner des Nutzers
+und gilt wie dessen übrige Shell-Konfiguration als vertrauenswürdig.
+
+## Ausführung
+
+Keine; CLITheme startet keine fremden Befehle.
