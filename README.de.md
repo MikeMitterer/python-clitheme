@@ -48,7 +48,7 @@ Abständen.
 ## Funktionen
 
 - **Theme-Datei:** Farben für zehn Rollen und sieben Abstände als
-  `NAME=wert`-Zeilen, lesbar für Python, Bash und Make.
+  `NAME=value`-Zeilen, lesbar für Python, Bash und Make.
 - **Neun Themes:** classic, ocean, earth, night, mono, sunset, forest, neon
   und shell; `CLI_THEME` wählt eines.
 - **Geprüftes Lesen:** ungültige oder fehlende Einträge werden mit Datei und
@@ -97,7 +97,7 @@ Umgebungsvariable `CLI_THEME` wählt den Namen, Standard ist `classic`; er
 darf Buchstaben, Ziffern, `-` und `_` enthalten. `cli-theme path` gibt den
 Ort aus.
 
-**Format:** ein `NAME=wert` je Zeile, ohne Anführungszeichen und ohne
+**Format:** ein `NAME=value` je Zeile, ohne Anführungszeichen und ohne
 Leerzeichen um das `=`, damit Make und Bash die Datei direkt einbinden.
 Zeilen mit `#` sind Kommentare. Eine Farbe ist eine Nummer von 0 bis 255,
 davor optional `bold+` oder `dim+`; `bold` oder `dim` allein sind erlaubt,
