@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+# Gemeinsames CLI-Theme für Bash, Make und Python; Auswahl mit CLI_THEME (Standard: classic).
+# Theme neon: Knallige Signalfarben.
+# Ort: ${XDG_CONFIG_HOME:-~/.config}/cli-theme/<name>.theme. Make bindet die Datei mit include
+# ein, Bash mit source; deshalb NAME=wert ohne Anführungszeichen und ohne Leerzeichen um das =.
+# Farben: Nummer 0–255, davor optional bold+ oder dim+; dim allein; leer = Terminalfarbe.
+# shellcheck disable=SC2034  # von cli_theme, BashLib und MakeLib gelesen
+
+# Überschriften und Gruppen
+C_HEAD=bold+201
+# Bezeichnungen: Targets, Optionen, Schlüssel in der linken Spalte
+C_KEY=118
+# Beschreibungen in der Hilfe
+C_TEXT=226
+# Werte, Befehle, Pfade
+C_VAL=226
+# Hinweise und Nebensächliches
+C_HINT=dim
+# Hervorhebung im Text: Platzhalter, zulässige Werte, Kennzeichen wie F1, Antworten
+C_ACC=51
+# Erfolg (✓), angenommen, freigegeben
+C_OK=118
+# Warnung, Stillstand, veraltet
+C_WARN=208
+# Fehler (✗), abgelehnt, Konflikt
+C_ERR=bold+196
+# Sonderstellung: Maintainer, Server, Herkunft eines Werts
+C_MARK=201
+
+# Einrückung der Gruppenüberschrift
+I_HEAD=2
+# Einrückung einer Zeile oder eines Parameters
+I_ROW=7
+# Einrückung von Hinweistext
+I_HINT=7
+# Breite der Bezeichnung; längere stehen in eigener Zeile
+W_KEY=21
+# Mindestabstand zwischen Bezeichnung und Text
+GAP=2
+# Höchste Zeilenbreite im Terminal; 0 = ganze Terminalbreite
+WIDTH=120
+# Leerzeilen vor einer Gruppe
+SPACE=1
