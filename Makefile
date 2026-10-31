@@ -2,11 +2,15 @@ SHELL := bash
 
 .DEFAULT_GOAL := help
 
-WORKSPACE    := $(realpath $(shell pwd))
-PROJECT_NAME := $(notdir $(WORKSPACE))
+# CURDIR statt $(realpath $(shell pwd)): Make-Funktionen wie realpath und notdir zerlegen einen
+# Pfad mit Leerzeichen in Wörter.
+WORKSPACE    := $(CURDIR)
+# Der Checkout-Pfad gequotet, zum Kopieren in einen angezeigten Befehl und für $(shell …).
+WORKSPACE_SQ := '$(subst ','\'',$(WORKSPACE))'
+PROJECT_NAME := $(shell basename -- $(WORKSPACE_SQ))
 # Werte von außen nur über die Umgebung in Rezepte geben ("$${WORKSPACE}"): ein $(…), Backtick
 # oder Apostroph im Checkout-Pfad wertete die Shell sonst aus.
-export WORKSPACE PROJECT_NAME MSG
+export WORKSPACE WORKSPACE_SQ PROJECT_NAME MSG
 
 # Release-Tags der pipx-Werkzeuge stehen in .dev-tools.conf.sh; lokal entwickelt: pipx install -e <Arbeitskopie>.
 include .dev-tools.conf.sh
@@ -107,7 +111,7 @@ hints: ## Reihenfolge für den ersten Start und Installationswege anzeigen
 	@echo
 	@echo "$(THEME_INDENT_GROUP)$(THEME_COLOR_GROUP)Installieren$(RESET)"
 	@$(call hint_row,Aus Git,$(if $(REPO_URL),pipx install 'git+$(REPO_URL).git@$(RELEASE_TAG)',$(NO_REMOTE)))
-	@$(call hint_row,Arbeitskopie,pipx install -e .)
+	@$(call hint_row,Arbeitskopie,pipx install -e $${WORKSPACE_SQ})
 	@echo
 	@echo "$(THEME_INDENT_GROUP)$(THEME_COLOR_GROUP)Werkzeuge$(RESET)"
 	@$(call hint_row,ProjectTools ab $(PROJECTTOOLS_MIN),$(PROJECTTOOLS_INSTALL))
