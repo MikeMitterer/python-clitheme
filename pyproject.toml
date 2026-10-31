@@ -1,0 +1,37 @@
+[build-system]
+# 77: license als SPDX-Ausdruck mit license-files
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mmit-cli-theme"
+version = "0.1.0"
+description = "Shared CLI theme for Python, Bash and Make: read the theme file, rich styles and spacing"
+readme = "README.md"
+license = "EUPL-1.2"
+license-files = ["LICENSE", "LICENSE.de.txt", "LICENSING.md"]
+# 3.11 wie der erste Verbraucher agent-lessons
+requires-python = ">=3.11"
+dependencies = ["rich>=15"]
+
+[project.optional-dependencies]
+# Entwicklung: Tests, Lint und Kataloge (pip install -e ".[dev]", siehe docs/development.md)
+dev = ["pytest", "ruff", "babel"]
+
+[project.scripts]
+cli-theme = "cli_theme.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+cli_theme = ["templates/*.theme", "locales/*/LC_MESSAGES/*.mo"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B"]

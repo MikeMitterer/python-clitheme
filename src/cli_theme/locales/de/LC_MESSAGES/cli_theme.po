@@ -1,0 +1,80 @@
+# Deutsche Übersetzung von cli-theme; Basissprache ist Englisch.
+msgid ""
+msgstr ""
+"Project-Id-Version: mmit-cli-theme\n"
+"POT-Creation-Date: 2026-10-31 13:47+0100\n"
+"Language: de\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "Sample"
+msgstr "Muster"
+
+msgid "Theme files"
+msgstr "Theme-Dateien"
+
+msgid "created"
+msgstr "angelegt"
+
+msgid "unchanged"
+msgstr "unverändert"
+
+msgid "Theme"
+msgstr "Theme"
+
+msgid "File"
+msgstr "Datei"
+
+msgid "File missing: no colors, spacing from the classic template."
+msgstr "Datei fehlt: keine Farben, Abstände aus der classic-Vorlage."
+
+msgid "Create it with: cli-theme install"
+msgstr "Anlegen mit: cli-theme install"
+
+msgid "Colors"
+msgstr "Farben"
+
+msgid "Spacing"
+msgstr "Abstände"
+
+msgid "Shared CLI theme for Python, Bash and Make: colors and spacing."
+msgstr "Gemeinsames CLI-Theme für Python, Bash und Make: Farben und Abstände."
+
+msgid "create missing theme files, keep existing ones"
+msgstr "fehlende Theme-Dateien anlegen, vorhandene behalten"
+
+msgid "print the path of the chosen theme file"
+msgstr "Ort der gewählten Theme-Datei ausgeben"
+
+msgid "show roles and spacing of the chosen theme"
+msgstr "Rollen und Abstände des gewählten Themes zeigen"
+
+#, python-brace-format
+msgid "Invalid CLI_THEME {name}"
+msgstr "Ungültiges CLI_THEME {name}"
+
+#, python-brace-format
+msgid "{source}:{line}: invalid theme entry {entry}"
+msgstr "{source}:{line}: ungültiger Eintrag {entry}"
+
+#, python-brace-format
+msgid "{source}: missing theme entries {names}"
+msgstr "{source}: fehlende Einträge {names}"
+
+#, python-brace-format
+msgid "{path} is a link; refused for safety"
+msgstr "{path} ist ein Link; aus Sicherheitsgründen abgelehnt"
+
+#, python-brace-format
+msgid "{path}: cannot read ({reason})"
+msgstr "{path}: nicht lesbar ({reason})"
+
+#, python-brace-format
+msgid "{path} is not a regular file"
+msgstr "{path} ist keine reguläre Datei"
+
+#, python-brace-format
+msgid "{source}:{line}: not valid UTF-8"
+msgstr "{source}:{line}: kein gültiges UTF-8"
