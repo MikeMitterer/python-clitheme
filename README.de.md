@@ -67,25 +67,36 @@ Abständen.
 
 Voraussetzungen: Python 3.11 oder neuer und [pipx](https://pipx.pypa.io/).
 
-Den Befehl aus einem Checkout dieses Repositorys installieren, dann die
+**Installieren** mit einem festen Release-Tag. Tags folgen dem Schema
+`vX.Y.Z+YYMMDD.HHMM.hash`, und pipx braucht den vollen Tag. Dieser Befehl
+zeigt den neuesten:
+
+```bash
+git ls-remote --tags --refs --sort=-v:refname https://github.com/MikeMitterer/python-clitheme.git | head -1
+```
+
+Damit installieren, `<release-tag>` durch den Tag ersetzen, dann die
 Theme-Dateien anlegen:
 
 ```bash
-pipx install <checkout>
+pipx install 'git+https://github.com/MikeMitterer/python-clitheme.git@<release-tag>'
 cli-theme install
 cli-theme show
 ```
 
 `install` legt jede fehlende Theme-Datei an und lässt vorhandene unverändert;
-eigene Änderungen bleiben also erhalten. Wer an CLITheme selbst arbeitet,
-installiert die Arbeitskopie mit `pipx install -e <checkout>`; Änderungen
-wirken dann ohne Neuinstallation.
+eigene Änderungen bleiben also erhalten. **Aktualisieren:**
+`pipx install --force` mit dem neuen vollen Tag. Wer an CLITheme selbst
+arbeitet, installiert die Arbeitskopie mit `pipx install -e <checkout>`;
+Änderungen wirken dann ohne Neuinstallation.
 
-Ein Python-Projekt nimmt `mmit-cli-theme` in seine Abhängigkeiten auf oder
-installiert es in die eigene Umgebung:
+Ein Python-Projekt nimmt das Paket in seine Abhängigkeiten auf, ebenfalls mit
+dem vollen Tag:
 
-```bash
-pip install <checkout>
+```toml
+dependencies = [
+    "mmit-cli-theme @ git+https://github.com/MikeMitterer/python-clitheme.git@<release-tag>",
+]
 ```
 
 [↑ Inhalt](#inhalt)
