@@ -18,8 +18,8 @@ retains authorship and copyright.
 
 The official language versions have equal legal value under Article 13.
 Original texts: [European Commission EUPL collection](https://interoperable-europe.ec.europa.eu/collection/eupl/eupl-text-eupl-12).
-The source code is the repository of CLITheme; the package `mmit-cli-theme`
-contains its Python source.
+The source is the repository
+<https://github.com/MikeMitterer/python-clitheme>.
 
 ## Use, changes and redistribution
 

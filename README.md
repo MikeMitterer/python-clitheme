@@ -65,25 +65,36 @@ chosen theme, aligned in two columns. In pipes, with `NO_COLOR` or with
 
 Requirements: Python 3.11 or later and [pipx](https://pipx.pypa.io/).
 
-Install the command from a checkout of this repository, then create the
+**Install** with a fixed release tag. Tags follow the scheme
+`vX.Y.Z+YYMMDD.HHMM.hash`, and pipx needs the full tag. This command shows
+the latest one:
+
+```bash
+git ls-remote --tags --refs --sort=-v:refname https://github.com/MikeMitterer/python-clitheme.git | head -1
+```
+
+Install with it, replacing `<release-tag>` with the tag, then create the
 theme files:
 
 ```bash
-pipx install <checkout>
+pipx install 'git+https://github.com/MikeMitterer/python-clitheme.git@<release-tag>'
 cli-theme install
 cli-theme show
 ```
 
 `install` creates every missing theme file and leaves existing ones
-unchanged, so your own changes stay. If you work on CLITheme itself, install
-the working copy with `pipx install -e <checkout>`; changes then take effect
-without reinstalling.
+unchanged, so your own changes stay. **Update:** run `pipx install --force`
+with the new full tag. If you work on CLITheme itself, install the working
+copy with `pipx install -e <checkout>`; changes then take effect without
+reinstalling.
 
-A Python project adds `mmit-cli-theme` to its dependencies or installs it
-into its own environment:
+A Python project adds the package to its dependencies, again with the full
+tag:
 
-```bash
-pip install <checkout>
+```toml
+dependencies = [
+    "mmit-cli-theme @ git+https://github.com/MikeMitterer/python-clitheme.git@<release-tag>",
+]
 ```
 
 [↑ Contents](#contents)
