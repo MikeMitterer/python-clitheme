@@ -12,7 +12,7 @@ PROJECT_NAME := $(shell basename -- $(WORKSPACE_SQ))
 # oder Apostroph im Checkout-Pfad wertete die Shell sonst aus.
 export WORKSPACE WORKSPACE_SQ PROJECT_NAME MSG
 
-# Release-Tags der pipx-Werkzeuge stehen in .dev-tools.conf.sh; lokal entwickelt: pipx install -e <Arbeitskopie>.
+# Release-Tags der pipx-Werkzeuge stehen in .dev-tools.conf.sh; selbst entwickelt: make hints.
 include .dev-tools.conf.sh
 PROJECTTOOLS_MIN     := $(patsubst v%,%,$(firstword $(subst +, ,$(PROJECTTOOLS_TAG))))
 PROJECTTOOLS_INSTALL := pipx install --force 'git+https://github.com/MikeMitterer/bash-ProjectTools.git@$(PROJECTTOOLS_TAG)'
@@ -102,6 +102,16 @@ hint_row = label="$(1)"; \
 	printf "$(THEME_INDENT_TARGET)$(THEME_COLOR_TARGET)%s$(RESET)%*s$(THEME_COLOR_DESC)%s$(RESET)\n" \
 		"$$label" $$(( $(THEME_WIDTH_TARGET) - chars + $(THEME_COLUMN_GAP) )) "" "$(2)"
 
+# Setzt in der Shell checkout auf den pipx-Befehl für die Arbeitskopie eines Werkzeugs, dessen
+# Ordner in der Umgebungsvariable $(1) steht (etwa PROJECT_TOOLS), gequotet zum Kopieren; sonst
+# ein Hinweis. Arbeitskopie heißt: An der Git-Wurzel liegt das Paket $(2). Die Git-Wurzel allein
+# genügt nicht, eine pipx-Installation in einem Home unter Git hätte sonst das Home als Wurzel.
+# Leer gelassen fiele git -C auf den aktuellen Ordner zurück.
+tool_checkout = top=""; [[ -n "$${$(1):-}" ]] && top=$$(git -C "$${$(1)}" rev-parse --show-toplevel 2>/dev/null); \
+	if [[ -n "$$top" ]] && grep -qx 'name = "$(2)"' "$$top/pyproject.toml" 2>/dev/null; then \
+		checkout="pipx install -e '$$(printf '%s' "$$top" | sed "s/'/'\\\\''/g")'"; \
+	else checkout="keine Arbeitskopie über $(1)"; fi
+
 .PHONY: hints
 hints: ## Reihenfolge für den ersten Start und Installationswege anzeigen
 	@echo
@@ -116,7 +126,10 @@ hints: ## Reihenfolge für den ersten Start und Installationswege anzeigen
 	@echo "$(THEME_INDENT_GROUP)$(THEME_COLOR_GROUP)Werkzeuge$(RESET)"
 	@$(call hint_row,ProjectTools ab $(PROJECTTOOLS_MIN),$(PROJECTTOOLS_INSTALL))
 	@$(call hint_row,BashLib (Maintainer),$(BASHLIB_INSTALL))
-	@$(call hint_row,Selbst entwickelt,pipx install -e <Arbeitskopie>)
+	@echo
+	@echo "$(THEME_INDENT_GROUP)$(THEME_COLOR_GROUP)Werkzeuge selbst entwickeln$(RESET)"
+	@$(call tool_checkout,PROJECT_TOOLS,mmit-projecttools); $(call hint_row,ProjectTools,$$checkout)
+	@$(call tool_checkout,BASH_LIBS,mmit-bashlib); $(call hint_row,BashLib,$$checkout)
 	@echo
 	@echo "$(THEME_INDENT_GROUP)$(THEME_COLOR_GROUP)Links$(RESET)"
 	@$(call hint_row,Repository,$(or $(REPO_URL),$(NO_REMOTE)))
