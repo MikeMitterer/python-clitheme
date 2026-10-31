@@ -102,3 +102,13 @@ def test_current_theme_never_fails(sandbox):
     stream = io.StringIO()
     Output(stream).head("Group")
     assert stream.getvalue() == "  Group\n"
+
+
+def test_current_theme_survives_invalid_utf8(sandbox):
+    """Auch ungültiges UTF-8 bricht die Ausgabe nicht: keine Farben, Abstände der Vorlage."""
+    sandbox.themes.mkdir(parents=True)
+    sandbox.theme().write_bytes(b"C_HEAD=\xff\n")
+    assert not current_theme().found
+    stream = io.StringIO()
+    Output(stream).head("Group")
+    assert stream.getvalue() == "  Group\n"

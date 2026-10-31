@@ -17,7 +17,11 @@ CLITheme liest und schreibt nur unter
 gilt nicht. Der Ordner `cli-theme` und die Theme-Dateien dürfen keine Links
 sein: Lesen öffnet mit `O_NOFOLLOW`, Anlegen setzt eine fertige Hilfsdatei
 per `os.link` ein und ersetzt nie eine vorhandene Datei oder einen Link.
-Vorhandene Dateien des Nutzers werden nie überschrieben.
+Vorhandene Dateien des Nutzers werden nie überschrieben. Gelesen werden nur
+reguläre Dateien; ein Ordner oder eine benannte Pipe am Ort der Datei ist ein
+Fehler, und `O_NONBLOCK` verhindert, dass das Öffnen einer Pipe hängt.
+Jeder Lesefehler, auch ungültiges UTF-8, ist ein `ThemeError` mit Pfad; die
+Ausgabehelfer fallen dann auf „keine Farben“ zurück.
 
 ## Geheimnisse
 

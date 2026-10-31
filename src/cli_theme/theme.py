@@ -8,6 +8,7 @@ kommen aus der classic-Vorlage.
 
 import os
 import re
+import stat
 import tempfile
 from dataclasses import dataclass, field
 from importlib import resources
@@ -142,12 +143,24 @@ def _refuse_link(path: Path) -> None:
         raise ThemeError("theme_link", N_("{path} is a link; refused for safety"), path=path)
 
 
+def _unreadable(path: Path, error: OSError) -> ThemeError:
+    """Lesefehler als ThemeError mit Pfad und Grund, etwa fehlendes Leserecht."""
+    reason = error.strerror or str(error)
+    return ThemeError(
+        "theme_unreadable", N_("{path}: cannot read ({reason})"), path=path, reason=reason
+    )
+
+
 def read_theme_file(path: Path) -> str | None:
-    """Text der Theme-Datei ohne Link-Folge, weder beim Ordner cli-theme noch bei der Datei;
-    fehlt sie, None. O_NOFOLLOW hält auch einen Tausch zwischen Prüfung und Öffnen auf."""
+    """Text der Theme-Datei; fehlt sie, None. Jeder andere Fehler ist ein ThemeError mit Pfad.
+
+    Ohne Link-Folge, weder beim Ordner cli-theme noch bei der Datei; O_NOFOLLOW hält auch einen
+    Tausch zwischen Prüfung und Öffnen auf. Nur reguläre Dateien: O_NONBLOCK lässt das Öffnen
+    einer benannten Pipe nicht hängen, fstat lehnt sie wie einen Ordner danach ab.
+    """
     _refuse_link(path.parent)
     try:
-        descriptor = os.open(path, os.O_RDONLY | os.O_NOFOLLOW)
+        descriptor = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
     except FileNotFoundError:
         return None
     except OSError as error:
@@ -155,9 +168,25 @@ def read_theme_file(path: Path) -> str | None:
             raise ThemeError(
                 "theme_link", N_("{path} is a link; refused for safety"), path=path
             ) from error
-        raise
-    with os.fdopen(descriptor, encoding="utf-8") as stream:
-        return stream.read()
+        raise _unreadable(path, error) from error
+    # Vor fdopen prüfen: fdopen meldet einen Ordner sonst selbst, nur mit der Deskriptornummer.
+    if not stat.S_ISREG(os.fstat(descriptor).st_mode):
+        os.close(descriptor)
+        raise ThemeError("theme_not_file", N_("{path} is not a regular file"), path=path)
+    with os.fdopen(descriptor, "rb") as stream:
+        try:
+            data = stream.read()
+        except OSError as error:
+            raise _unreadable(path, error) from error
+    try:
+        return data.decode("utf-8")
+    except UnicodeDecodeError as error:
+        raise ThemeError(
+            "theme_encoding",
+            N_("{source}:{line}: not valid UTF-8"),
+            source=path,
+            line=data.count(b"\n", 0, error.start) + 1,
+        ) from error
 
 
 def load_theme(name: str | None = None) -> Theme:

@@ -1,5 +1,6 @@
 """Befehl cli-theme über den echten Aufruf: --version, path, install, show."""
 
+import os
 import re
 from importlib.metadata import version
 
@@ -122,6 +123,40 @@ def test_show_refuses_linked_theme_file(sandbox):
     sandbox.theme().symlink_to(target)
     result = sandbox.run("show", code=1)
     assert "is a link; refused for safety" in result.stderr, result.stderr
+
+
+def test_show_reports_invalid_utf8_with_file_and_line(sandbox):
+    """Ungültiges UTF-8 ist ein Fehler mit Datei und Zeile, kein Absturz."""
+    sandbox.run("install")
+    sandbox.theme().write_bytes(template_text().encode() + b"C_HEAD=\xff\n")
+    number = len(template_text().splitlines()) + 1
+    result = sandbox.run("show", code=1)
+    assert f"{sandbox.theme()}:{number}: not valid UTF-8" in result.stderr, result.stderr
+    assert "Traceback" not in result.stderr
+
+
+def test_show_refuses_directory_and_fifo(sandbox):
+    """Ein Ordner oder eine benannte Pipe am Ort der Datei ist ein Fehler mit Pfad; nichts
+    blockiert (run bricht nach 30 Sekunden ab)."""
+    sandbox.themes.mkdir(parents=True)
+    sandbox.theme().mkdir()
+    result = sandbox.run("show", code=1)
+    assert f"{sandbox.theme()} is not a regular file" in result.stderr, result.stderr
+    sandbox.theme().rmdir()
+    os.mkfifo(sandbox.theme())
+    result = sandbox.run("show", code=1)
+    assert f"{sandbox.theme()} is not a regular file" in result.stderr, result.stderr
+
+
+def test_show_reports_unreadable_file(sandbox):
+    """Eine Datei ohne Leserecht ist ein Fehler mit Pfad und Grund."""
+    sandbox.run("install")
+    sandbox.theme().chmod(0)
+    try:
+        result = sandbox.run("show", code=1)
+    finally:
+        sandbox.theme().chmod(0o644)
+    assert f"{sandbox.theme()}: cannot read (Permission denied)" in result.stderr, result.stderr
 
 
 def test_german_texts_from_catalog(sandbox):

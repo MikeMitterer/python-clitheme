@@ -33,9 +33,15 @@ class Sandbox:
         return self.themes / f"{name}.theme"
 
     def run(self, *args: str, code: int = 0) -> subprocess.CompletedProcess:
-        """cli-theme mit args in einer Pipe; prüft den Exit-Code."""
+        """cli-theme mit args in einer Pipe; prüft den Exit-Code. Hängt der Aufruf, scheitert
+        der Test nach 30 Sekunden statt die ganze Suite zu blockieren."""
         result = subprocess.run(
-            [str(COMMAND), *args], env=self.env, capture_output=True, text=True, check=False
+            [str(COMMAND), *args],
+            env=self.env,
+            capture_output=True,
+            text=True,
+            check=False,
+            timeout=30,
         )
         assert result.returncode == code, (result.returncode, result.stdout, result.stderr)
         return result

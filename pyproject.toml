@@ -15,7 +15,7 @@ requires-python = ">=3.11"
 dependencies = ["rich>=15"]
 
 [project.optional-dependencies]
-# Entwicklung: Tests, Lint und Kataloge (make setup)
+# Entwicklung: Tests, Lint und Kataloge (pip install -e ".[dev]", siehe docs/development.md)
 dev = ["pytest", "ruff", "babel"]
 
 [project.scripts]
