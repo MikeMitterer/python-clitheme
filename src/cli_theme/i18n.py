@@ -1,9 +1,12 @@
 """Übersetzung der sichtbaren Texte; Basissprache Englisch, Deutsch aus dem Katalog."""
 
 import gettext
+import os
 from pathlib import Path
 
-LOCALES = Path(__file__).parent / "locales"
+# CLI_THEME_LOCALE_DIR nennt einen anderen Katalogordner; die Tests zeigen damit auf einen
+# eigenen und hängen nicht davon ab, ob im Quellbaum eine .mo liegt.
+LOCALES = Path(os.environ.get("CLI_THEME_LOCALE_DIR") or Path(__file__).parent / "locales")
 DOMAIN = "cli_theme"
 
 # Sprache wie üblich aus LANGUAGE, LC_ALL, LC_MESSAGES oder LANG; ohne Katalog Englisch.

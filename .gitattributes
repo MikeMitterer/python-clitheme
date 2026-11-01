@@ -1,0 +1,3 @@
+# Neue Einträge hängen zwei Tickets oft an dieselbe Stelle; beide bleiben. Doppelte Kennungen
+# und verwaiste Einträge fängt tests/test_catalog.py ab.
+*.po merge=union

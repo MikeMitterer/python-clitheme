@@ -35,10 +35,11 @@ make setup
 ```
 
 `setup` legt die `.venv` an, installiert das Paket editierbar samt den
-Werkzeugen für Tests, Lint und Kataloge (Extra `dev` in `pyproject.toml`) und
-aktiviert den pre-commit-Hook unter `.githooks/`, der vor jedem Commit die
-Doku prüft. Ein zweiter Aufruf ist schnell; neu installiert wird nur, wenn
-`pyproject.toml` sich geändert hat. Danach steht `.venv/bin/cli-theme` bereit. Die eigenen Theme-Dateien unter
+Werkzeugen für Tests, Lint und Kataloge (Extra `dev` in `pyproject.toml`),
+übersetzt die Kataloge (`.po` nach `.mo`) und aktiviert den pre-commit-Hook
+unter `.githooks/`, der vor jedem Commit die Doku prüft. Ein zweiter Aufruf
+ist schnell; neu installiert wird nur, wenn `pyproject.toml` sich geändert
+hat, neu übersetzt nur eine geänderte `.po`. Danach steht `.venv/bin/cli-theme` bereit. Die eigenen Theme-Dateien unter
 `~/.config/cli-theme/` bleiben dabei unberührt.
 
 [↑ Übersicht](#übersicht)
@@ -57,7 +58,10 @@ brechen die Prüfungen mit einem Hinweis darauf ab.
 Die Tests rufen den installierten Befehl `cli-theme` auf, auch in einem
 Pseudo-Terminal für die farbige Ausgabe, und arbeiten mit echten Dateien in
 einem temporären `XDG_CONFIG_HOME`. Sie lesen und schreiben nie die
-Konfiguration des Rechners.
+Konfiguration des Rechners. `CLI_THEME_LOCALE_DIR` zeigt Bibliothek und
+Befehl in den Tests auf einen eigenen Katalogordner; die deutschen Texte
+prüfen sie mit einer `.mo`, die sie selbst aus der `.po` übersetzen, nie mit
+der aus `make setup`.
 
 [↑ Übersicht](#übersicht)
 
@@ -65,17 +69,28 @@ Konfiguration des Rechners.
 
 Basissprache der sichtbaren Texte ist Englisch; der Code markiert sie mit
 `_()` oder `N_()`. Die deutsche Übersetzung steht in
-`src/cli_theme/locales/de/LC_MESSAGES/cli_theme.po`, die kompilierte `.mo`
-daneben wird mitcommittet und kommt ins Paket.
+`src/cli_theme/locales/de/LC_MESSAGES/cli_theme.po` und wird von Hand
+gepflegt: Ein neuer Text kommt als Eintrag ans Ende der Datei. Weil
+`.gitattributes` die `.po` mit `merge=union` zusammenführt, behält ein Merge
+die Einträge zweier Tickets, die beide ans Ende angehängt haben.
 
-Nach einer Änderung an Texten oder an der `.po`-Datei neu kompilieren:
+Die übersetzte `.mo` liegt nicht im Git. Für die Entwicklung erzeugt sie
+`make setup`; nach einer Änderung an der `.po` melden die Prüfungen sie als
+veraltet, bis `make setup` sie neu übersetzt. Beim Paketbau übersetzt
+`setup.py` die `.po` in den Build-Ordner (Babel steht dafür in
+`build-system.requires`), sodass auch ein Wheel aus
+`pipx install git+…` die deutschen Texte enthält.
+
+Welche Texte der Code markiert, sammelt zum Vergleich mit der `.po`:
 
 ```bash
-make catalog
+make messages
 ```
 
-Ein Test prüft, dass jeder markierte Text übersetzt und nicht unscharf ist
-und dass die `.mo`-Datei zur `.po`-Datei passt.
+Das schreibt `build/cli_theme.pot`; die Datei ist nur zum Ansehen da und
+nicht im Git. Ein Test prüft, dass jeder markierte Text genau einen
+übersetzten, nicht unscharfen Eintrag hat und kein Eintrag verwaist ist, ein
+weiterer baut ein Wheel und vergleicht dessen `.mo` mit der `.po`.
 
 [↑ Übersicht](#übersicht)
 
@@ -86,6 +101,8 @@ und dass die `.mo`-Datei zur `.po`-Datei passt.
 | `src/cli_theme/theme.py` | Ort, Lesen und Prüfen der Theme-Datei, Anlegen aus den Vorlagen |
 | `src/cli_theme/output.py` | rich-Stile, Ausgabebreite, Ausgabehelfer `Output` |
 | `src/cli_theme/cli.py` | Befehl `cli-theme` |
+| `src/cli_theme/locales/` | Übersetzungen (`.po`), dazu die `.mo` aus `make setup` |
+| `setup.py` | Paketbau: übersetzt die Kataloge in den Build-Ordner |
 | `src/cli_theme/templates/` | Vorlagen der neun Themes |
 | `tests/` | Tests über die echte CLI und die Bibliothek |
 

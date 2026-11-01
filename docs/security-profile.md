@@ -34,10 +34,16 @@ Sitzungen.
 
 ## Zugriffe von außen
 
-Eingaben sind die Umgebungsvariablen `CLI_THEME` und `XDG_CONFIG_HOME` und
-der Inhalt der Theme-Datei. `CLI_THEME` darf nur Buchstaben, Ziffern, `-` und
+Eingaben sind die Umgebungsvariablen `CLI_THEME`, `XDG_CONFIG_HOME` und
+`CLI_THEME_LOCALE_DIR` und der Inhalt der Theme-Datei. `CLI_THEME` darf nur Buchstaben, Ziffern, `-` und
 `_` enthalten und kann so keinen Pfad bilden. Jede Zeile der Theme-Datei wird
 gegen das Format geprüft; Unbekanntes ist ein Fehler. Kein Netzzugriff.
+
+`CLI_THEME_LOCALE_DIR` nennt einen anderen Katalogordner und ist für die
+Tests gedacht. Gelesen wird daraus nur die `.mo` der Sprache über gettext;
+fehlt sie oder der Ordner, bleiben die Texte englisch. Wer die Variable
+setzen kann, steuert ohnehin die Umgebung des Prozesses; mehr als die
+angezeigten Texte ändert ein fremder Katalog nicht.
 
 Bash und Make binden die Theme-Datei mit `source` bzw. `include` ein und
 führen damit ihren Inhalt aus. Sie liegt im Konfigurationsordner des Nutzers

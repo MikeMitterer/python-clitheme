@@ -160,7 +160,7 @@ def test_show_reports_unreadable_file(sandbox):
 
 
 def test_german_texts_from_catalog(sandbox):
-    """Mit deutscher Sprache kommen die Texte aus dem Katalog."""
-    sandbox.env["LANGUAGE"] = "de"
+    """Mit deutscher Sprache kommen die Texte aus dem Katalog, hier aus der .po übersetzt."""
+    sandbox.use_german_catalog()
     output = sandbox.run("show").stdout
     assert "Farben" in output and "Abstände" in output and "Muster" in output, output

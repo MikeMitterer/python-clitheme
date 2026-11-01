@@ -9,6 +9,9 @@ __pycache__/
 # Entwicklungs-venv (make setup)
 .venv/
 
+# Übersetzte Kataloge: make setup und der Paketbau erzeugen sie aus der .po
+*.mo
+
 # Reste von Paket-Builds (pip wheel, pip install -e)
 build/
 dist/
