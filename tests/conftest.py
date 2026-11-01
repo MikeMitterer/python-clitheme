@@ -11,11 +11,17 @@ from dataclasses import dataclass
 from pathlib import Path
 
 import pytest
+from babel.messages.mofile import write_mo
+from babel.messages.pofile import read_po
 
 # Der installierte Befehl aus der venv der Tests, nicht ein Modulaufruf.
 COMMAND = Path(sys.executable).parent / "cli-theme"
 # Umgebungsvariablen, die Sprache, Farben oder Theme-Wahl verändern würden.
 NEUTRAL = ("CLI_THEME", "NO_COLOR", "TERM", "LANGUAGE", "LC_ALL", "LC_MESSAGES", "LANG", "COLUMNS")
+# Katalogordner ohne Kataloge, gesetzt vor dem ersten Import von cli_theme: Bibliothek und
+# Befehl lesen nie eine .mo des Quellbaums, die make setup erzeugt hat.
+os.environ["CLI_THEME_LOCALE_DIR"] = str(Path(__file__).parent / "no-locale")
+PO = Path(__file__).parents[1] / "src/cli_theme/locales/de/LC_MESSAGES/cli_theme.po"
 
 
 @dataclass
@@ -31,6 +37,17 @@ class Sandbox:
 
     def theme(self, name: str = "classic") -> Path:
         return self.themes / f"{name}.theme"
+
+    def use_german_catalog(self) -> None:
+        """Übersetzt die deutsche .po in einen Katalogordner der Sandbox und schaltet die
+        Aufrufe darauf und auf Deutsch um; der Quellbaum bleibt unberührt."""
+        folder = self.root / "locale"
+        target = folder / "de" / "LC_MESSAGES" / "cli_theme.mo"
+        target.parent.mkdir(parents=True)
+        with PO.open("rb") as source, target.open("wb") as stream:
+            write_mo(stream, read_po(source, locale="de"))
+        self.env["CLI_THEME_LOCALE_DIR"] = str(folder)
+        self.env["LANGUAGE"] = "de"
 
     def run(self, *args: str, code: int = 0) -> subprocess.CompletedProcess:
         """cli-theme mit args in einer Pipe; prüft den Exit-Code. Hängt der Aufruf, scheitert

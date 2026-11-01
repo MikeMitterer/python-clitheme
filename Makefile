@@ -54,8 +54,9 @@ PYTHON_BOOTSTRAP ?= python3.14
 VENV   := .venv
 PYTHON := $(VENV)/bin/python
 RUFF   := $(VENV)/bin/ruff
-# Der deutsche Katalog; die .mo ist versioniert, damit eine Installation aus Git sie mitbringt.
-CATALOG := src/cli_theme/locales/de/LC_MESSAGES/cli_theme
+# Was setup herstellt und require-setup prüft: die .venv und die übersetzten Kataloge (.mo).
+CATALOGS := $(patsubst %.po,%.mo,$(wildcard src/cli_theme/locales/*/LC_MESSAGES/*.po))
+SETUP_STAMPS := $(VENV)/.installed $(CATALOGS)
 SHELL_FILES := .githooks/pre-commit .dev-tools.conf.sh .docs-check.conf.sh .repo-status.conf.sh
 
 # ─── Hilfe ───────────────────────────────────────────────────────────────────
@@ -163,7 +164,7 @@ require-tools:
 # Der einzige Einrichtungsweg, auch für agent-lessons (worktree_setup). Wiederholbar: die .venv
 # gleicht er nur ab, wenn pyproject.toml neuer ist als die Stempeldatei.
 .PHONY: setup
-setup: $(VENV)/.installed ## Git-Hooks und .venv mit dem Paket und den Prüfwerkzeugen einrichten
+setup: $(SETUP_STAMPS) ## Git-Hooks, .venv mit dem Paket und den Prüfwerkzeugen, übersetzte Kataloge
 	@git config core.hooksPath .githooks   # pre-commit: make docs-check
 
 # Stempeldatei: nur setup legt sie an. Nicht .venv/bin/python als Ziel nehmen; es ist ein Link
@@ -177,11 +178,17 @@ $(VENV)/.installed: pyproject.toml
 	@touch "$@"
 	@echo -e "  $(GREEN)✓$(RESET) .venv eingerichtet"
 
+# Die .mo sind nicht im Git, damit parallele Tickets nicht an Binärdateien kollidieren; der
+# Paketbau übersetzt sie selbst (setup.py).
+%.mo: %.po $(VENV)/.installed
+	@$(VENV)/bin/pybabel -q compile -i "$<" -o "$@"
+	@echo -e "  $(GREEN)✓$(RESET) $@"
+
 # Ohne Hilfeeintrag: Prüf-Targets richten nichts ein, sie melden eine fehlende oder veraltete
 # Einrichtung.
 .PHONY: require-setup
 require-setup:
-	@$(MAKE) --no-print-directory -q $(VENV)/.installed 2>/dev/null || { \
+	@$(MAKE) --no-print-directory -q $(SETUP_STAMPS) 2>/dev/null || { \
 		echo -e "  $(RED)✗$(RESET) Nicht eingerichtet oder veraltet: $(YELLOW)make setup$(RESET)" >&2; \
 		exit 1; }
 
@@ -220,10 +227,11 @@ lint: require-setup ## Ruff (Lint und Format) und Shellcheck
 format: require-setup ## Python-Dateien mit Ruff formatieren
 	@$(RUFF) format src tests
 
-.PHONY: catalog
-catalog: require-setup ## Deutschen Katalog (.po) nach .mo kompilieren
-	@$(VENV)/bin/pybabel compile -i $(CATALOG).po -o $(CATALOG).mo
-	@echo -e "  $(GREEN)✓$(RESET) $(CATALOG).mo"
+.PHONY: messages
+messages: require-setup ## Alle Texte des Codes (_ und N_) zum Vergleich nach build/cli_theme.pot sammeln
+	@mkdir -p build
+	@$(VENV)/bin/pybabel -q extract -k N_ --no-location -o build/cli_theme.pot src/cli_theme
+	@echo -e "  $(GREEN)✓$(RESET) build/cli_theme.pot"
 
 # ─── Versionierung ───────────────────────────────────────────────────────────
 

@@ -1,6 +1,7 @@
 [build-system]
 # 77: license als SPDX-Ausdruck mit license-files
-requires = ["setuptools>=77"]
+# Babel: setup.py übersetzt die Kataloge beim Bauen
+requires = ["setuptools>=77", "Babel==2.18.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -18,8 +19,8 @@ dependencies = ["rich>=15"]
 Homepage = "https://github.com/MikeMitterer/python-clitheme"
 
 [project.optional-dependencies]
-# Entwicklung: Tests, Lint und Kataloge (make setup)
-dev = ["pytest", "ruff", "babel"]
+# Entwicklung: Tests, Lint und Kataloge (make setup); setuptools baut im Test ein Wheel
+dev = ["pytest", "ruff", "babel", "setuptools>=77"]
 
 [project.scripts]
 cli-theme = "cli_theme.cli:main"
@@ -28,7 +29,8 @@ cli-theme = "cli_theme.cli:main"
 where = ["src"]
 
 [tool.setuptools.package-data]
-cli_theme = ["templates/*.theme", "locales/*/LC_MESSAGES/*.mo"]
+# Die .mo kommen nur aus dem Bauschritt (setup.py), nie aus dem Quellbaum.
+cli_theme = ["templates/*.theme", "locales/*/LC_MESSAGES/*.po"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
