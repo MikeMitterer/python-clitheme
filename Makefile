@@ -49,6 +49,14 @@ THEME_COLUMN_GAP    ?= 1
 # Kennzeichnet in der Hilfe Targets, die BashLib brauchen; ihre Beschreibung endet auf „— Maintainer“.
 MAINTAINER_MARK = $(THEME_COLOR_DANGER)[Maintainer]$(THEME_COLOR_DESC)
 
+# awk-Anfang der Hilfe: {major}, {minor} und {patch} in einer Beschreibung werden zu
+# „<jetzt> → <danach>“ aus der Version (readProjectVersion), gerechnet wie semVerBump.
+HELP_BUMPS = if (split(ver, v, ".") == 3 && ver ~ /^[0-9]+\.[0-9]+\.[0-9]+$$/) { \
+	  bump["major"] = ver " → " (v[1] + 1) ".0.0"; \
+	  bump["minor"] = ver " → " v[1] "." (v[2] + 1) ".0"; \
+	  bump["patch"] = ver " → " v[1] "." v[2] "." (v[3] + 1) } \
+	else { bump["major"] = bump["minor"] = bump["patch"] = "(Version unbekannt: make version)" }
+
 # Entwicklungs-venv mit der neuesten stabilen Python-Version; PYTHON_BOOTSTRAP=… überschreibt.
 PYTHON_BOOTSTRAP ?= python3.14
 VENV   := .venv
@@ -68,10 +76,13 @@ help: ## Alle verfügbaren Befehle anzeigen
 	@echo
 	@echo "Project: $(THEME_COLOR_GROUP)$${PROJECT_NAME}$(RESET)"
 	@echo
-	@set -o pipefail; grep -hE '^(##@|[a-zA-Z0-9_-]+:.*?## )' $${HELP_FILES} | \
-	  awk 'BEGIN {FS = ":.*?## "}; \
+	@set -o pipefail; \
+	 VER=$$(source "$${BASH_LIBS}/version.lib.sh" 2>/dev/null && readProjectVersion 2>/dev/null); \
+	 grep -hE '^(##@|[a-zA-Z0-9_-]+:.*?## )' $${HELP_FILES} | \
+	  awk -v ver="$$VER" 'BEGIN {FS = ":.*?## "; $(HELP_BUMPS)}; \
 	    /^##@/ { printf "\n$(THEME_INDENT_GROUP)$(THEME_COLOR_GROUP)%s$(RESET)\n", substr($$0, 5); next }; \
 	    { desc = $$2; sub(/ — Maintainer$$/, " $(MAINTAINER_MARK)", desc); \
+	      for (k in bump) gsub("\\{" k "\\}", bump[k], desc); \
 	      printf "$(THEME_INDENT_TARGET)$(THEME_COLOR_TARGET)%-$(THEME_WIDTH_TARGET)s%$(THEME_COLUMN_GAP)s$(THEME_COLOR_DESC)%s$(RESET)\n", $$1, "", desc }'
 	@echo
 
@@ -270,13 +281,13 @@ endef
 # require-tools vor precheck: ohne ProjectTools bricht ein Release vor dem Bump ab, nicht erst
 # nach dem gepushten Tag.
 .PHONY: tag-major
-tag-major: require-tools precheck ## Version committen, taggen UND pushen, dann Changelog — Major  [MSG="..."] — Maintainer
+tag-major: require-tools precheck ## Major-Release {major}, inkompatible Änderung  [MSG="..."] — Maintainer
 	$(call release,major)
 
 .PHONY: tag-minor
-tag-minor: require-tools precheck ## Version committen, taggen UND pushen, dann Changelog — Minor  [MSG="..."] — Maintainer
+tag-minor: require-tools precheck ## Minor-Release {minor}, neue Funktion  [MSG="..."] — Maintainer
 	$(call release,minor)
 
 .PHONY: tag-patch
-tag-patch: require-tools precheck ## Version committen, taggen UND pushen, dann Changelog — Patch  [MSG="..."] — Maintainer
+tag-patch: require-tools precheck ## Patch-Release {patch}, Fehlerbehebung  [MSG="..."] — Maintainer
 	$(call release,patch)

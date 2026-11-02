@@ -124,7 +124,9 @@ Ein Release erhöht die Version, committet, setzt den Tag
 make tag-patch MSG="Kurze Beschreibung des Releases"
 ```
 
-`tag-minor` und `tag-major` erhöhen die jeweilige Stelle. `make changelog`
-zeigt vorher eine Vorschau.
+`tag-minor` und `tag-major` erhöhen die jeweilige Stelle. `make help` zeigt
+bei jedem der drei Targets, welche Version danach gilt, etwa
+`Patch-Release 0.2.0 → 0.2.1`; ohne BashLib steht dort „Version unbekannt“.
+`make changelog` zeigt vorher eine Vorschau.
 
 [↑ Übersicht](#übersicht)
