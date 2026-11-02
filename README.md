@@ -58,8 +58,8 @@ prompt does not stick to it.
   style, ready for your own output.
 - **Output helpers:** `head()`, `row()` and `hint()` wrap long lines at
   `WIDTH` or the terminal width.
-- **Closing blank line:** `Output` and `ArgumentParser` end output, help and
-  error messages with one blank line.
+- **Closing blank line:** `Output` and `ArgumentParser` end output, help,
+  `--version` and error messages with one blank line.
 - **`cli-theme` command:** `install`, `path` and `show`, in English or German
   depending on the locale.
 
@@ -160,10 +160,11 @@ with its colors and spacing, `styles()` the rich style of each role, and
 or the end of a `with Output() as out:` block, writes exactly one blank line
 to each stream that received output (stdout, stderr) and nothing if there
 was none. `ArgumentParser` is a drop-in for `argparse.ArgumentParser` whose
-help (`-h`, `--help`, `print_help()`) and error messages end the same way;
-subparsers inherit it. Machine output such as a path or a command to copy
-goes through `print()` instead of `Output` and stays without the blank line,
-like `cli-theme path`.
+help (`-h`, `--help`, `print_help()`), version (`action="version"`) and
+error messages end the same way; subparsers inherit it. `$(app --version)`
+in the shell, `head -1` and `grep` do not see the blank line. Machine output
+such as a path or a command to copy goes through `print()` instead of
+`Output` and stays without the blank line, like `cli-theme path`.
 
 ```python
 from cli_theme import ArgumentParser, Output

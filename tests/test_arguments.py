@@ -51,3 +51,17 @@ def test_subparsers_inherit_class():
     parser = ArgumentParser(prog="app")
     child = parser.add_subparsers().add_parser("run")
     assert isinstance(child, ArgumentParser)
+
+
+@pytest.mark.parametrize("args", [["--version"], ["run", "--version"]])
+def test_version_ends_with_blank_line(args, capsys):
+    """action="version" endet mit Exit 0 und einer Leerzeile, auch im Unterparser."""
+    parser = ArgumentParser(prog="app")
+    parser.add_argument("--version", action="version", version="%(prog)s 1.2.3")
+    run = parser.add_subparsers(dest="command").add_parser("run")
+    run.add_argument("--version", action="version", version="%(prog)s 1.2.3")
+    with pytest.raises(SystemExit) as stop:
+        parser.parse_args(args)
+    assert stop.value.code == 0
+    expected = "app 1.2.3\n\n" if args == ["--version"] else "app run 1.2.3\n\n"
+    assert capsys.readouterr().out == expected
