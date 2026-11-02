@@ -57,7 +57,7 @@ prompt does not stick to it.
 - **rich styles:** the color of each role as a [rich](https://github.com/Textualize/rich)
   style, ready for your own output.
 - **Output helpers:** `head()`, `row()` and `hint()` wrap long lines at
-  `WIDTH` or the terminal width.
+  `WIDTH` or the terminal width; `write(..., wrap=False)` keeps a line whole.
 - **Closing blank line:** `Output` and `ArgumentParser` end output, help and
   error messages with one blank line.
 - **`cli-theme` command:** `install`, `path` and `show`, in English or German
@@ -164,6 +164,12 @@ help (`-h`, `--help`, `print_help()`) and error messages end the same way;
 subparsers inherit it. Machine output such as a path or a command to copy
 goes through `print()` instead of `Output` and stays without the blank line,
 like `cli-theme path`.
+
+**Lines to copy:** a command or path that is part of the output, in the
+theme's colors, goes through `out.write(Text(...), wrap=False)`. The line is
+never broken, not even when it is wider than the terminal, so it can be
+copied in one piece; with `NO_COLOR` it is plain text. It counts as output,
+so `finish()` closes with the blank line as usual.
 
 ```python
 from cli_theme import ArgumentParser, Output
