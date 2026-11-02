@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "mmit-cli-theme"
-version = "0.2.0"
+version = "0.3.0"
 description = "Shared CLI theme for Python, Bash and Make: read the theme file, rich styles and spacing"
 readme = "README.md"
 license = "EUPL-1.2"
