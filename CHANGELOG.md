@@ -2,6 +2,14 @@
 
 Aus Release-Tags und Conventional Commits erzeugt.
 
+## v0.4.0+261102.1800.5c1a8 — 2026-11-02
+
+Output.write mit wrap=False: Zeilen zum Kopieren nie umbrechen
+
+### Neue Funktionen
+
+- Output.write mit wrap=False – Zeilen zum Kopieren nie umbrechen (T-18) (`390d974`)
+
 ## v0.3.0+261102.1724.ca51d — 2026-11-02
 
 Leerzeile am Ende jeder Ausgabe: Output.finish und ArgumentParser
