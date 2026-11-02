@@ -60,7 +60,7 @@ damit der nächste Prompt nicht daran klebt.
 - **Ausgabehelfer:** `head()`, `row()` und `hint()` brechen lange Zeilen bei
   `WIDTH` oder der Terminalbreite um.
 - **Abschließende Leerzeile:** `Output` und `ArgumentParser` beenden Ausgabe,
-  Hilfe, `--version` und Fehlermeldungen mit einer Leerzeile.
+  Hilfe und Fehlermeldungen mit einer Leerzeile.
 - **Befehl `cli-theme`:** `install`, `path` und `show`, je nach Locale auf
   Englisch oder Deutsch.
 
@@ -161,12 +161,10 @@ deren `params`; eine Anwendung kann sie so im eigenen Katalog übersetzen.
 oder das Ende eines `with Output() as out:`-Blocks schreibt genau eine
 Leerzeile auf jeden Strom, der Ausgabe bekam (stdout, stderr), und nichts,
 wenn es keine gab. `ArgumentParser` ersetzt `argparse.ArgumentParser`; seine
-Hilfe (`-h`, `--help`, `print_help()`), Version (`action="version"`) und
-Fehlermeldungen enden ebenso, Unterparser erben ihn. `$(app --version)` in
-der Shell, `head -1` und `grep` sehen die Leerzeile nicht.
-Maschinenausgaben wie ein Pfad oder ein Befehl zum Kopieren gehen mit
-`print()` statt über `Output` und bleiben ohne Leerzeile, so wie
-`cli-theme path`.
+Hilfe (`-h`, `--help`, `print_help()`) und Fehlermeldungen enden ebenso,
+Unterparser erben ihn. Maschinenausgaben wie ein Pfad oder ein Befehl zum
+Kopieren gehen mit `print()` statt über `Output` und bleiben ohne Leerzeile,
+so wie `cli-theme path`.
 
 ```python
 from cli_theme import ArgumentParser, Output
