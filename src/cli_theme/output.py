@@ -130,19 +130,23 @@ class Output:
         """Einrückung aus dem Theme als Leerzeichen (i_head, i_row, i_hint)."""
         return " " * self.spacing(name)
 
-    def write(self, text: Text, stream: TextIO | None = None, hang: int = 0) -> None:
+    def write(
+        self, text: Text, stream: TextIO | None = None, hang: int = 0, wrap: bool = True
+    ) -> None:
         """Gibt eine Zeile aus; im Terminal auf die Ausgabebreite umbrochen.
 
         hang: Zahl der Zeichen am Anfang, die nur in der ersten Zeile stehen (Einzug und
         Bezeichnung); Folgezeilen beginnen in dieser Spalte. Bleiben daneben weniger als
         MIN_VALUE_WIDTH Zeichen, steht der Kopf allein und der Text darunter mit I_ROW.
+        wrap=False: nie umbrechen, auch wenn die Zeile breiter ist als das Terminal; für
+        Befehle und Pfade zum Kopieren. Farben und der Abschluss durch finish gelten weiter.
         """
         target = stream or self.stream
         if not any(target is seen for seen in self.written):
             self.written.append(target)
         console = console_for(target)
         width = output_width(target, self.theme)
-        if width is None or text.cell_len <= width:
+        if not wrap or width is None or text.cell_len <= width:
             console.print(text, crop=False, overflow="ignore")
             return
         head, rest = text[:hang], text[hang:]
