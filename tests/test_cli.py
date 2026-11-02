@@ -10,8 +10,9 @@ ESCAPE = "\x1b["
 
 
 def test_version_names_package_version(sandbox):
-    """--version nennt die Version des installierten Pakets."""
-    assert sandbox.run("--version").stdout.strip() == f"cli-theme {version('mmit-cli-theme')}"
+    """--version nennt die Version des installierten Pakets und endet wie die Hilfe mit einer
+    Leerzeile; $(cli-theme --version) in der Shell schneidet sie ab."""
+    assert sandbox.run("--version").stdout == f"cli-theme {version('mmit-cli-theme')}\n\n"
 
 
 def test_path_follows_cli_theme_and_xdg(sandbox):
