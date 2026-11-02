@@ -139,12 +139,12 @@ hints: ## Reihenfolge für den ersten Start und Installationswege anzeigen
 	@$(call hint_row,Arbeitskopie,pipx install -e $${WORKSPACE_SQ})
 	@echo
 	@echo "$(THEME_INDENT_GROUP)$(THEME_COLOR_GROUP)Werkzeuge$(RESET)"
-	@$(call hint_row,ProjectTools ab $(PROJECTTOOLS_MIN),$(PROJECTTOOLS_INSTALL))
-	@$(call hint_row,BashLib (Maintainer),$(BASHLIB_INSTALL))
+	@$(call hint_row,$(PROJECTTOOLS_LABEL) ab $(PROJECTTOOLS_MIN),$(PROJECTTOOLS_INSTALL))
+	@$(call hint_row,$(BASHLIB_LABEL) (Maintainer),$(BASHLIB_INSTALL))
 	@echo
 	@echo "$(THEME_INDENT_GROUP)$(THEME_COLOR_GROUP)Werkzeuge selbst entwickeln$(RESET)"
-	@$(call tool_checkout,PROJECT_TOOLS,mmit-projecttools); $(call hint_row,ProjectTools,$$checkout)
-	@$(call tool_checkout,BASH_LIBS,mmit-bashlib); $(call hint_row,BashLib,$$checkout)
+	@$(call tool_checkout,PROJECT_TOOLS,$(PROJECTTOOLS_PACKAGE)); $(call hint_row,$(PROJECTTOOLS_LABEL),$$checkout)
+	@$(call tool_checkout,BASH_LIBS,$(BASHLIB_PACKAGE)); $(call hint_row,$(BASHLIB_LABEL),$$checkout)
 	@echo
 	@echo "$(THEME_INDENT_GROUP)$(THEME_COLOR_GROUP)Links$(RESET)"
 	@$(call hint_row,Repository,$(or $(REPO_URL),$(NO_REMOTE)))
