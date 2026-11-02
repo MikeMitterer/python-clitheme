@@ -49,8 +49,11 @@ THEME_COLUMN_GAP    ?= 1
 # Kennzeichnet in der Hilfe Targets, die BashLib brauchen; ihre Beschreibung endet auf „— Maintainer“.
 MAINTAINER_MARK = $(THEME_COLOR_DANGER)[Maintainer]$(THEME_COLOR_DESC)
 
+# Version des Projekts über BashLib für help und version; leer ohne BashLib oder Version.
+READ_VERSION = source "$${BASH_LIBS}/version.lib.sh" 2>/dev/null && readProjectVersion 2>/dev/null
+
 # awk-Anfang der Hilfe: {major}, {minor} und {patch} in einer Beschreibung werden zu
-# „<jetzt> → <danach>“ aus der Version (readProjectVersion), gerechnet wie semVerBump.
+# „<jetzt> → <danach>“ aus der Version (READ_VERSION), gerechnet wie semVerBump.
 HELP_BUMPS = if (split(ver, v, ".") == 3 && ver ~ /^[0-9]+\.[0-9]+\.[0-9]+$$/) { \
 	  bump["major"] = ver " → " (v[1] + 1) ".0.0"; \
 	  bump["minor"] = ver " → " v[1] "." (v[2] + 1) ".0"; \
@@ -77,7 +80,7 @@ help: ## Alle verfügbaren Befehle anzeigen
 	@echo "Project: $(THEME_COLOR_GROUP)$${PROJECT_NAME}$(RESET)"
 	@echo
 	@set -o pipefail; \
-	 VER=$$(source "$${BASH_LIBS}/version.lib.sh" 2>/dev/null && readProjectVersion 2>/dev/null); \
+	 VER=$$($(READ_VERSION)); \
 	 grep -hE '^(##@|[a-zA-Z0-9_-]+:.*?## )' $${HELP_FILES} | \
 	  awk -v ver="$$VER" 'BEGIN {FS = ":.*?## "; $(HELP_BUMPS)}; \
 	    /^##@/ { printf "\n$(THEME_INDENT_GROUP)$(THEME_COLOR_GROUP)%s$(RESET)\n", substr($$0, 5); next }; \
@@ -254,7 +257,7 @@ messages: require-setup ## Alle Texte des Codes (_ und N_) zum Vergleich nach bu
 .PHONY: version
 version: precheck ## Aktuelle Version anzeigen (Versionsdatei + git tag) — Maintainer
 	@echo
-	@VER=$$(source "$${BASH_LIBS}/version.lib.sh" 2>/dev/null && readProjectVersion 2>/dev/null); \
+	@VER=$$($(READ_VERSION)); \
 	 [[ -z "$$VER" ]] && VER='nicht gesetzt'; \
 	 TAG=$$(git describe --tags --abbrev=0 2>/dev/null || echo 'kein Tag'); \
 	 echo "    $(YELLOW)version$(RESET)      = $(BLUE)$$VER$(RESET)"; \
