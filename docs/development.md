@@ -23,8 +23,10 @@ rich.
 
 Die Prüfungen brauchen ProjectTools (`docs-check`, `repo-status`,
 `changelog`), Releases zusätzlich BashLib, beide über pipx. Die verlangten
-Release-Tags stehen in `.dev-tools.conf.sh`; `make hints` nennt die
-Installationsbefehle, `make info` die gefundenen Versionen.
+Release-Tags stehen in `.dev-tools.conf.sh` im Format von devtools;
+`make hints` nennt die Installationsbefehle, `make info` die gefundenen
+Versionen. `devtools status` zeigt den Stand, `devtools upgrade --write`
+trägt die neuesten Tags ein.
 
 [↑ Übersicht](#übersicht)
 
