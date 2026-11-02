@@ -3,7 +3,8 @@
 import os
 import shutil
 import sys
-from typing import TextIO
+from types import TracebackType
+from typing import Self, TextIO
 
 from rich.console import Console
 from rich.text import Text
@@ -83,7 +84,9 @@ def console_for(stream: TextIO) -> Console:
 class Output:
     """Schreibt Überschriften, zweispaltige Zeilen und Hinweise nach dem Theme.
 
-    Vor jeder Überschrift außer der ersten stehen SPACE Leerzeilen.
+    Vor jeder Überschrift außer der ersten stehen SPACE Leerzeilen. finish oder das Ende
+    eines with-Blocks schließt mit einer Leerzeile auf jedem Strom ab, der Ausgabe bekam;
+    was nicht über Output geht, etwa ein Befehl zum Kopieren mit print, zählt nicht.
     """
 
     def __init__(
@@ -97,6 +100,27 @@ class Output:
         self.theme = theme or current_theme()
         self.styles = styles(self.theme)
         self.started = False
+        # Ströme mit Ausgabe seit dem letzten finish, in der Reihenfolge der ersten Ausgabe.
+        self.written: list[TextIO] = []
+
+    def __enter__(self) -> Self:
+        return self
+
+    def __exit__(
+        self,
+        kind: type[BaseException] | None,
+        error: BaseException | None,
+        traceback: TracebackType | None,
+    ) -> None:
+        self.finish()
+
+    def finish(self) -> None:
+        """Schließt die Ausgabe ab: genau eine Leerzeile auf jedem Strom, der seit dem letzten
+        finish Ausgabe bekam; ohne Ausgabe nichts."""
+        for stream in self.written:
+            stream.write("\n")
+            stream.flush()
+        self.written.clear()
 
     def spacing(self, name: str) -> int:
         """Abstand aus dem Theme, etwa i_row oder w_key."""
@@ -114,6 +138,8 @@ class Output:
         MIN_VALUE_WIDTH Zeichen, steht der Kopf allein und der Text darunter mit I_ROW.
         """
         target = stream or self.stream
+        if not any(target is seen for seen in self.written):
+            self.written.append(target)
         console = console_for(target)
         width = output_width(target, self.theme)
         if width is None or text.cell_len <= width:

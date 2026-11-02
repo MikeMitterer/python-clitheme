@@ -101,7 +101,8 @@ weiterer baut ein Wheel und vergleicht dessen `.mo` mit der `.po`.
 | Ort | Inhalt |
 |---|---|
 | `src/cli_theme/theme.py` | Ort, Lesen und Prüfen der Theme-Datei, Anlegen aus den Vorlagen |
-| `src/cli_theme/output.py` | rich-Stile, Ausgabebreite, Ausgabehelfer `Output` |
+| `src/cli_theme/output.py` | rich-Stile, Ausgabebreite, Ausgabehelfer `Output` mit Abschluss |
+| `src/cli_theme/arguments.py` | `ArgumentParser`: Hilfe und Fehlermeldungen enden mit einer Leerzeile |
 | `src/cli_theme/cli.py` | Befehl `cli-theme` |
 | `src/cli_theme/locales/` | Übersetzungen (`.po`), dazu die `.mo` aus `make setup` |
 | `setup.py` | Paketbau: übersetzt die Kataloge in den Build-Ordner |

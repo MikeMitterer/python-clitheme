@@ -31,16 +31,18 @@ and shows its roles and spacing.
 ```python
 from cli_theme import Output
 
-out = Output()
-out.head("Repository")
-out.row("Branch", "master")
-out.row("Status", "clean")
-out.hint("Nothing to commit.")
+with Output() as out:
+    out.head("Repository")
+    out.row("Branch", "master")
+    out.row("Status", "clean")
+    out.hint("Nothing to commit.")
 ```
 
 In a terminal the heading, labels and values appear in the colors of the
 chosen theme, aligned in two columns. In pipes, with `NO_COLOR` or with
 `TERM=dumb` the same text appears without colors and with the same spacing.
+At the end of the `with` block a blank line closes the output, so the next
+prompt does not stick to it.
 
 [↑ Contents](#contents)
 
@@ -56,6 +58,8 @@ chosen theme, aligned in two columns. In pipes, with `NO_COLOR` or with
   style, ready for your own output.
 - **Output helpers:** `head()`, `row()` and `hint()` wrap long lines at
   `WIDTH` or the terminal width.
+- **Closing blank line:** `Output` and `ArgumentParser` end output, help and
+  error messages with one blank line.
 - **`cli-theme` command:** `install`, `path` and `show`, in English or German
   depending on the locale.
 
@@ -151,6 +155,24 @@ with its colors and spacing, `styles()` the rich style of each role, and
 `rich_style()` converts a single value such as `bold+11` to
 `bold color(11)`. Errors are `ThemeError` with a stable `code` and its
 `params`, so an application can translate them in its own catalog.
+
+**Rule for all apps: output ends with one blank line.** `Output.finish()`,
+or the end of a `with Output() as out:` block, writes exactly one blank line
+to each stream that received output (stdout, stderr) and nothing if there
+was none. `ArgumentParser` is a drop-in for `argparse.ArgumentParser` whose
+help (`-h`, `--help`, `print_help()`) and error messages end the same way;
+subparsers inherit it. Machine output such as a path or a command to copy
+goes through `print()` instead of `Output` and stays without the blank line,
+like `cli-theme path`.
+
+```python
+from cli_theme import ArgumentParser, Output
+
+parser = ArgumentParser(prog="app")
+arguments = parser.parse_args()
+with Output() as out:
+    out.head("Result")
+```
 
 ```python
 from cli_theme import load_theme, styles
