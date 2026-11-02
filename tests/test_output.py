@@ -4,6 +4,8 @@ import io
 import re
 from pathlib import Path
 
+from rich.text import Text
+
 from cli_theme import Output, current_theme, parse_theme, rich_style, styles, template_text
 
 ESCAPE = re.compile(r"\x1b\[[0-9;]*m")
@@ -165,3 +167,36 @@ def test_output_as_context_manager_finishes_on_exit():
     except RuntimeError:
         pass
     assert stream.getvalue() == "       note\n\n"
+
+
+def test_write_without_wrap_keeps_line_whole_in_terminal(monkeypatch):
+    """wrap=False: auch im schmalen Terminal eine Zeile ohne eingefügten Umbruch, mit NO_COLOR
+    als reiner Text, sonst in der Farbe der Rolle."""
+    monkeypatch.setenv("COLUMNS", "40")
+    monkeypatch.setenv("TERM", "xterm-256color")
+    command = "pipx install 'git+https://example.org/some/long/repository.git@v1.2.3+261102'"
+    monkeypatch.setenv("NO_COLOR", "")
+    plain = Terminal()
+    out = Output(plain, theme=theme(WIDTH="40"))
+    out.write(Text(command, style=out.styles["val"]), wrap=False)
+    assert plain.getvalue() == command + "\n"
+
+    monkeypatch.delenv("NO_COLOR")
+    colored = Terminal()
+    out = Output(colored, theme=theme(WIDTH="40"))
+    out.write(Text(command, style="bold color(11)"), wrap=False)
+    assert ESCAPE.search(colored.getvalue()), repr(colored.getvalue())
+    assert ESCAPE.sub("", colored.getvalue()) == command + "\n"
+
+    wrapped = Terminal()
+    Output(wrapped, theme=theme(WIDTH="40")).write(Text(command))
+    assert len(wrapped.getvalue().splitlines()) > 1
+
+
+def test_write_without_wrap_counts_for_finish():
+    """Eine Zeile mit wrap=False schließt finish ab wie jede andere Ausgabe."""
+    stream = io.StringIO()
+    out = Output(stream, theme=theme())
+    out.write(Text("make setup"), wrap=False)
+    out.finish()
+    assert stream.getvalue() == "make setup\n\n"

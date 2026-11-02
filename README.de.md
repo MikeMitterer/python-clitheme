@@ -58,7 +58,8 @@ damit der nächste Prompt nicht daran klebt.
 - **rich-Stile:** die Farbe jeder Rolle als [rich](https://github.com/Textualize/rich)-Stil,
   fertig für die eigene Ausgabe.
 - **Ausgabehelfer:** `head()`, `row()` und `hint()` brechen lange Zeilen bei
-  `WIDTH` oder der Terminalbreite um.
+  `WIDTH` oder der Terminalbreite um; `write(..., wrap=False)` hält eine Zeile
+  ganz.
 - **Abschließende Leerzeile:** `Output` und `ArgumentParser` beenden Ausgabe,
   Hilfe und Fehlermeldungen mit einer Leerzeile.
 - **Befehl `cli-theme`:** `install`, `path` und `show`, je nach Locale auf
@@ -165,6 +166,13 @@ Hilfe (`-h`, `--help`, `print_help()`) und Fehlermeldungen enden ebenso,
 Unterparser erben ihn. Maschinenausgaben wie ein Pfad oder ein Befehl zum
 Kopieren gehen mit `print()` statt über `Output` und bleiben ohne Leerzeile,
 so wie `cli-theme path`.
+
+**Zeilen zum Kopieren:** Ein Befehl oder Pfad, der Teil der Ausgabe ist und
+in den Farben des Themes erscheint, geht über
+`out.write(Text(...), wrap=False)`. Die Zeile wird nie umbrochen, auch wenn
+sie breiter ist als das Terminal, und lässt sich so in einem Stück kopieren;
+mit `NO_COLOR` ist sie reiner Text. Sie zählt als Ausgabe, `finish()` schließt
+also wie gewohnt mit der Leerzeile ab.
 
 ```python
 from cli_theme import ArgumentParser, Output
