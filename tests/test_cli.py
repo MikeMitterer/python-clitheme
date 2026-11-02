@@ -164,3 +164,22 @@ def test_german_texts_from_catalog(sandbox):
     sandbox.use_german_catalog()
     output = sandbox.run("show").stdout
     assert "Farben" in output and "Abstände" in output and "Muster" in output, output
+
+
+def ends_with_one_blank_line(text: str) -> bool:
+    return text.endswith("\n\n") and not text.endswith("\n\n\n")
+
+
+def test_output_and_help_end_with_one_blank_line(sandbox):
+    """show, install, Hilfe (ohne Argumente, -h, Unterbefehl -h) und Fehler enden mit genau
+    einer Leerzeile auf ihrem Strom; path bleibt ohne, zum Kopieren."""
+    for args in (["show"], ["install"], [], ["-h"], ["show", "--help"]):
+        result = sandbox.run(*args)
+        assert ends_with_one_blank_line(result.stdout), (args, result.stdout)
+        assert result.stderr == "", (args, result.stderr)
+    result = sandbox.run("--bogus", code=2)
+    assert ends_with_one_blank_line(result.stderr), result.stderr
+    sandbox.theme().write_text("C_HEAD=kein\n")
+    result = sandbox.run("show", code=1)
+    assert result.stdout == "" and ends_with_one_blank_line(result.stderr), result
+    assert sandbox.run("path").stdout == f"{sandbox.theme()}\n"

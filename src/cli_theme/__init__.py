@@ -3,6 +3,7 @@
 Bash und Make lesen dieselbe Datei direkt; der Befehl cli-theme legt die Vorlagen an.
 """
 
+from cli_theme.arguments import ArgumentParser
 from cli_theme.output import Output, current_theme, rich_style, styles
 from cli_theme.theme import (
     DEFAULT_THEME,
@@ -21,6 +22,7 @@ from cli_theme.theme import (
 )
 
 __all__ = [
+    "ArgumentParser",
     "DEFAULT_THEME",
     "ROLES",
     "SPACING",

@@ -112,3 +112,56 @@ def test_current_theme_survives_invalid_utf8(sandbox):
     stream = io.StringIO()
     Output(stream).head("Group")
     assert stream.getvalue() == "  Group\n"
+
+
+def test_finish_closes_each_written_stream_once():
+    """finish schreibt genau eine Leerzeile auf jeden Strom, der Ausgabe bekam; ein zweites
+    finish ohne neue Ausgabe schreibt nichts."""
+    stream, errors = io.StringIO(), io.StringIO()
+    out = Output(stream, errors, theme=theme())
+    out.head("Group")
+    out.finish()
+    out.finish()
+    assert stream.getvalue() == "  Group\n\n"
+    assert errors.getvalue() == ""
+
+    stream, errors = io.StringIO(), io.StringIO()
+    out = Output(stream, errors, theme=theme())
+    out.error("✗ broken")
+    out.finish()
+    assert stream.getvalue() == ""
+    assert errors.getvalue() == "✗ broken\n\n"
+
+    stream, errors = io.StringIO(), io.StringIO()
+    out = Output(stream, errors, theme=theme())
+    out.row("key", "value")
+    out.error("✗ broken")
+    out.finish()
+    assert stream.getvalue().endswith("value\n\n")
+    assert errors.getvalue() == "✗ broken\n\n"
+
+
+def test_finish_without_output_writes_nothing():
+    """Ohne Ausgabe kein Abschluss; was nicht über Output geht (Maschinenausgabe), zählt nicht."""
+    stream, errors = io.StringIO(), io.StringIO()
+    out = Output(stream, errors, theme=theme())
+    stream.write("/path/to/copy\n")
+    out.finish()
+    assert stream.getvalue() == "/path/to/copy\n"
+    assert errors.getvalue() == ""
+
+
+def test_output_as_context_manager_finishes_on_exit():
+    """with Output(...) as out: schließt am Ende ab, auch wenn ein Fehler herausfliegt."""
+    stream = io.StringIO()
+    with Output(stream, theme=theme()) as out:
+        out.hint("note")
+    assert stream.getvalue() == "       note\n\n"
+    stream = io.StringIO()
+    try:
+        with Output(stream, theme=theme()) as out:
+            out.hint("note")
+            raise RuntimeError
+    except RuntimeError:
+        pass
+    assert stream.getvalue() == "       note\n\n"

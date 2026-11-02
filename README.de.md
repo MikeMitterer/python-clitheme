@@ -31,17 +31,18 @@ des gewählten und zeigt dessen Rollen und Abstände.
 ```python
 from cli_theme import Output
 
-out = Output()
-out.head("Repository")
-out.row("Branch", "master")
-out.row("Status", "clean")
-out.hint("Nothing to commit.")
+with Output() as out:
+    out.head("Repository")
+    out.row("Branch", "master")
+    out.row("Status", "clean")
+    out.hint("Nothing to commit.")
 ```
 
 Im Terminal erscheinen Überschrift, Bezeichnungen und Werte in den Farben
 des gewählten Themes, in zwei Spalten ausgerichtet. In Pipes, mit `NO_COLOR`
 oder mit `TERM=dumb` erscheint derselbe Text ohne Farben und mit denselben
-Abständen.
+Abständen. Am Ende des `with`-Blocks schließt eine Leerzeile die Ausgabe ab,
+damit der nächste Prompt nicht daran klebt.
 
 [↑ Inhalt](#inhalt)
 
@@ -58,6 +59,8 @@ Abständen.
   fertig für die eigene Ausgabe.
 - **Ausgabehelfer:** `head()`, `row()` und `hint()` brechen lange Zeilen bei
   `WIDTH` oder der Terminalbreite um.
+- **Abschließende Leerzeile:** `Output` und `ArgumentParser` beenden Ausgabe,
+  Hilfe und Fehlermeldungen mit einer Leerzeile.
 - **Befehl `cli-theme`:** `install`, `path` und `show`, je nach Locale auf
   Englisch oder Deutsch.
 
@@ -153,6 +156,24 @@ mit Farben und Abständen, `styles()` den rich-Stil je Rolle, und
 `rich_style()` wandelt einen einzelnen Wert wie `bold+11` in
 `bold color(11)`. Fehler sind `ThemeError` mit stabiler Kennung `code` und
 deren `params`; eine Anwendung kann sie so im eigenen Katalog übersetzen.
+
+**Regel für alle Apps: Ausgabe endet mit einer Leerzeile.** `Output.finish()`
+oder das Ende eines `with Output() as out:`-Blocks schreibt genau eine
+Leerzeile auf jeden Strom, der Ausgabe bekam (stdout, stderr), und nichts,
+wenn es keine gab. `ArgumentParser` ersetzt `argparse.ArgumentParser`; seine
+Hilfe (`-h`, `--help`, `print_help()`) und Fehlermeldungen enden ebenso,
+Unterparser erben ihn. Maschinenausgaben wie ein Pfad oder ein Befehl zum
+Kopieren gehen mit `print()` statt über `Output` und bleiben ohne Leerzeile,
+so wie `cli-theme path`.
+
+```python
+from cli_theme import ArgumentParser, Output
+
+parser = ArgumentParser(prog="app")
+arguments = parser.parse_args()
+with Output() as out:
+    out.head("Result")
+```
 
 ```python
 from cli_theme import load_theme, styles

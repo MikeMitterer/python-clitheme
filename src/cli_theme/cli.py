@@ -1,11 +1,11 @@
 """Befehl cli-theme: Vorlagen anlegen, Ort nennen, Rollen und Abstände zeigen."""
 
-import argparse
 import sys
 from importlib.metadata import version
 
 from rich.text import Text
 
+from cli_theme.arguments import ArgumentParser
 from cli_theme.i18n import N_, _
 from cli_theme.output import Output, styles
 from cli_theme.theme import (
@@ -55,9 +55,9 @@ def show(out: Output) -> int:
     return 0
 
 
-def parser() -> argparse.ArgumentParser:
+def parser() -> ArgumentParser:
     """Argumente: install, path, show und --version."""
-    result = argparse.ArgumentParser(
+    result = ArgumentParser(
         prog="cli-theme",
         description=_("Shared CLI theme for Python, Bash and Make: colors and spacing."),
     )
@@ -70,22 +70,22 @@ def parser() -> argparse.ArgumentParser:
 
 
 def main(argv: list[str] | None = None) -> int:
-    """Einstieg des Befehls cli-theme; Fehler im Theme enden mit Exit 1."""
+    """Einstieg des Befehls cli-theme; Fehler im Theme enden mit Exit 1. Jede Ausgabe außer
+    path endet mit einer Leerzeile."""
     arguments = parser().parse_args(argv)
     if arguments.command is None:
         parser().print_help()
         return 0
-    out = Output()
-    try:
-        if arguments.command == "path":
-            print(theme_path())
-            return 0
-        code = install(out) if arguments.command == "install" else show(out)
-    except (ThemeError, OSError) as error:
-        out.error(f"✗ {error}")
-        return 1
-    print()
-    return code
+    with Output() as out:
+        try:
+            if arguments.command == "path":
+                # Zum Kopieren: print statt Output, daher ohne Leerzeile am Ende.
+                print(theme_path())
+                return 0
+            return install(out) if arguments.command == "install" else show(out)
+        except (ThemeError, OSError) as error:
+            out.error(f"✗ {error}")
+            return 1
 
 
 if __name__ == "__main__":
